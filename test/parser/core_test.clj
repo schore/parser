@@ -55,7 +55,6 @@
   (is (= [\1, "adfa2"] (parse pNumber "1adfa2")))
   (is (nil? (parse pNumber "ad")))
   (is (nil? (parse pNumber ""))))
-(parse pNumber "1adfa2")
 
 
 (deftest keyword-test
@@ -68,6 +67,7 @@
 
 (deftest word-test
   (is (= ["Foo" " Bar"] (parse pword "Foo Bar")))
+  (is (= ["Foo" " Bar"] (parse pword "  Foo Bar")))
   (is (nil? (parse pword "")))
   (is (nil? (parse pword "-12")))
   (is (= ["fo" "1"] (parse pword "fo1"))))
