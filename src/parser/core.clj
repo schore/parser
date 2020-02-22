@@ -103,6 +103,9 @@
                  num pUnsignedInt]
                 (pure (* -1 num)))))
 
+(def pwhitespace (acc #(java.lang.Character/isWhitespace %)))
+(def cleanWhitespace (pany pwhitespace))
+
 (def pletter (acc #(java.lang.Character/isLetter %)))
 (def pword (doMonad [_ cleanWhitespace
                      word (fmap #(apply str %) (psome pletter))]
@@ -121,6 +124,4 @@
       (if (and (some? o) (= x kw))
         o nil))))
 
-(def pwhitespace (acc #(java.lang.Character/isWhitespace %)))
-(def cleanWhitespace (pany pwhitespace))
 
