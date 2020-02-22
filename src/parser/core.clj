@@ -1,6 +1,5 @@
 (ns parser.core
-  (:require [clojure.string :as str]
-            [clojure.walk :as w]))
+  (:require [clojure.string :as str]))
 
 (defrecord Parser [pf])
 
@@ -89,11 +88,6 @@
        `(>>= ~b
              (fn [~a] (doMonad ~restOfList ~f)))))))
 
-(macroexpand '(doMonad [a b c d] (e)))
-
-(w/macroexpand-all '(doMonad [a pNumber
-                              b pInt]
-                             (pure [a b])))
 
 (defn acc [f]
   (Parser. (fn [inp]
@@ -130,91 +124,4 @@
 
 (def pwhitespace (acc #(java.lang.Character/isWhitespace %)))
 (def cleanWhitespace (pany pwhitespace))
-
-;; Test my parsers
-
-
-
-(parse item "Foo")
-
-(parse (>>= item
-            (fn [_] (>>= item
-                         (fn [x1]
-                           (>>= item
-                                (fn [x2]
-                                  (pure [x1 x2])))))))
-       "Fooo")
-
-
-(def transition (doMonad [_ cleanWhitespace
-                          _ (pkeyword "transition")
-                          _ cleanWhitespace
-                          from pword
-                          _ cleanWhitespace
-                          _ (pkeyword "->")
-                          _ cleanWhitespace
-                          to pword]
-                         (pure {:transiton true
-                                :from from
-                                :to to})))
-
-(defn action [type]
-  (doMonad [_ cleanWhitespace
-            _ (pkeyword type)
-            _ cleanWhitespace
-            n pword]
-           (pure [(keyword type) n])))
-
-(def entryAction (action "entry"))
-(def doAction (action "do"))
-(def exitAction (action "exit"))
-
-(parse entryAction "entry Fooo")
-
-(parse transition "transition stateA -> stateB")
-
-(def f (doMonad [a pInt
-                 _ cleanWhitespace
-                 b pInt]
-                (pure [a b])))
-
-(parse pNumber "1adfa2")
-
-(parse (psome pNumber) "123")
-
-
-(parse f "4  -233432342 fooo")
-
-(parse (pkeyword "Foo") "Foo Bar")
-
-(parse pword "Foo Bar")
-
-(parse cleanWhitespace "Fooo")
-
-(parse pInt "-123 Foo")
-
-(parse pUnsignedInt "123")
-
-(parse (pany pNumber) "A12Fo")
-
-(parse item "Fooo")
-(parse item "")
-
-(parse (fmap (fn [x] 1) item) "foo")
-
-(parse (fmap (fn [x] 1) item) "")
-
-(parse (<*> (pure #(.toUpperCase (str %)))
-            item) "foo")
-
-(parse (pany item) "foo")
-(parse (pany item) "")
-
-(parse (psome item) "Bla")
-(parse (psome item) "")
-
-(parse (<*> (pure (fn [x1 x2] [x1 x2]))
-            item
-            item)
-       "Fooo")
 
